@@ -1,0 +1,50 @@
+.user-data__table {
+  width: 800px;
+  height: auto;
+  margin: 50px auto 0;
+  border: 1px solid black;
+  border-collapse: collapse;
+}
+
+.user-data__td {
+  position: relative;
+  padding: 10px;
+  border: 1px solid black;
+}
+
+.user-data__td--sorting-up::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  display: block;
+  width: 20px;
+  height: 20px;
+  transform: translateY(-50%);
+  cursor: pointer;
+  background-image: url("../img/triangulo.png");
+  background-position: center;
+  background-size: 20px;
+  background-repeat: no-repeat;
+}
+
+.user-data__td--sorting-down::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  display: block;
+  width: 20px;
+  height: 20px;
+  transform: translateY(-50%) rotate(180deg);
+  cursor: pointer;
+  background-image: url("../img/triangulo.png");
+  background-position: center;
+  background-size: 20px;
+  background-repeat: no-repeat;
+}
+
+.user-data__td--sorting {
+  font-weight: 700;
+  cursor: pointer;
+}
