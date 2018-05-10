@@ -59,13 +59,13 @@ class UsersTable {
           this.stringFlag = false;
 
           sortCol = function (rowA, rowB) {
-            return rowA.cells[colNum].innerHTML < rowB.cells[colNum].innerHTML;
+            return rowA.cells[colNum].innerHTML < rowB.cells[colNum].innerHTML ? -1 : 1;
           };
         } else {
           this.stringFlag = true;
 
           sortCol = function (rowA, rowB) {
-            return rowA.cells[colNum].innerHTML > rowB.cells[colNum].innerHTML;
+            return rowA.cells[colNum].innerHTML > rowB.cells[colNum].innerHTML ? -1 : 1;
           };
         }
 
