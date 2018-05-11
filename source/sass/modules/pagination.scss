@@ -1,0 +1,29 @@
+.pagination {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  width: 500px;
+  margin: 50px auto 100px;
+  padding: 0;
+}
+
+.pagination__item {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid black;
+  cursor: pointer;
+}
+
+.pagination__item--active {
+  font-weight: 700;
+  background-color: #cccccc;
+}
+
+.pagination__item--hidden {
+  display: none;
+}
