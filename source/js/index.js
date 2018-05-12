@@ -17,16 +17,17 @@ class UsersTable {
 
     if (data) {
       for (let i = 0; i < Object.keys(data).length; i++) {
-        if (Object.keys(data)[i] !== 'address' && Object.keys(data)[i] !== 'description') {
+        if (Object.keys(data)[i] !== 'address' && Object.keys(data)[i] !== 'description' && Object.keys(data)[i] !== 'id') {
           const td = document.createElement('td');
 
-          tr.setAttribute('data-id', `${data[Object.keys(data)[0]]}`);
+          tr.setAttribute('data-id', `${data.id}`);
           td.classList.add('user-data__td');
           td.textContent = data[Object.keys(data)[i]];
           tr.appendChild(td);
         }
       }
 
+      tr.insertAdjacentElement('afterbegin', tr.lastElementChild);
       this.tbody.appendChild(tr);
     }
   }
@@ -55,14 +56,14 @@ class UsersTable {
         this.stringFlag = false;
 
         return function (itemA, itemB) {
-          return itemA[type] > itemB[type] ? 1 : -1;
+          return itemA[type] < itemB[type] ? 1 : -1;
         }
 
       } else {
         this.stringFlag = true;
 
         return function (itemA, itemB) {
-          return itemA[type] < itemB[type] ? 1 : -1;
+          return itemA[type] > itemB[type] ? 1 : -1;
         }
 
       }
@@ -80,30 +81,24 @@ class UsersTable {
   }
 
   addPaginationAllBtns() {
-    const count = this.data.length / this.countTrInPage;
-    const rest = this.data.length % this.countTrInPage;
-    let i;
+    if (this.data) {
+      const count = Math.ceil(this.data.length / this.countTrInPage);
 
-    for (i = 0; i < parseInt(count, 10); i++) {
-      const btn = this.addPaginationBtn(i + 1);
+      for (let i = 0; i < count; i++) {
+        const btn = this.addPaginationBtn(i + 1);
 
-      this.pagination.appendChild(btn);
-    }
-
-    if (rest) {
-      const btn = this.addPaginationBtn(i + 1);
-
-      this.pagination.appendChild(btn);
+        this.pagination.appendChild(btn);
+      }
     }
   }
 
   loadData(data, num) {
     const number = (num * this.countTrInPage) - this.countTrInPage;
 
-    this.data.forEach((it, i) => {
-      if (i > number && i <= number + this.countTrInPage) {
+    data.forEach((it, i) => {
+      if (i >= number && i < number + this.countTrInPage) {
         this.addTr(data[i]);
-        [...this.tbody.querySelectorAll('tr')][i - number - 1].querySelectorAll('td')[0].textContent = `${i}`;
+        // [...this.tbody.querySelectorAll('tr')][i - number].querySelectorAll('td')[0].textContent = `${i + 1}`;
       }
     });
   }
@@ -176,14 +171,14 @@ class UsersTable {
     if (this.data) {
       for (let i = 0; i < this.countTrInPage; i++) {
         this.addTr(this.data[i]);
-        [...this.tbody.querySelectorAll('tr')][i].querySelectorAll('td')[0].textContent = `${i + 1}`;
+        // [...this.tbody.querySelectorAll('tr')][i].querySelectorAll('td')[0].textContent = `${i + 1}`;
       }
-    }
 
-    this.table.addEventListener('click', this.onTrClick.bind(this));
-    this.pagination.addEventListener('click', this.onBtnClick.bind(this));
-    this.addPaginationAllBtns();
-    this.pagination.querySelectorAll('.pagination__item')[0].classList.add('pagination__item--active');
+      this.table.addEventListener('click', this.onTrClick.bind(this));
+      this.pagination.addEventListener('click', this.onBtnClick.bind(this));
+      this.addPaginationAllBtns();
+      this.pagination.querySelectorAll('.pagination__item')[0].classList.add('pagination__item--active');
+    }
   }
 }
 
@@ -200,7 +195,12 @@ async function main() {
 
   const userTable = new UsersTable({
     elem: document.querySelector('.user-data'),
-    data: data
+    data: data.map((it, i) => {
+
+      it.i = i + 1;
+
+      return it;
+    })
   });
 
   userTable.init();
