@@ -7,7 +7,6 @@ class UsersTable {
     this.tr = this.table.querySelectorAll('.user-data__tr');
     this.headingTr = [...this.table.querySelectorAll('.user-data__td--sorting')];
     this.pagination = this.elem.querySelector('.pagination');
-    this.paginationItems = [...this.elem.querySelectorAll('.pagination__item')];
     this.countTrInPage = 5;
     this.numberFlag = true;
     this.stringFlag = true;
@@ -32,51 +31,42 @@ class UsersTable {
     }
   }
 
-  sortingTr(colNum, type) {
-    const tbody = this.table.querySelector('tbody');
-    const tr = [...tbody.rows];
+  sortingData(type) {
+    if (type === 'number') {
+      if (this.numberFlag) {
+        this.numberFlag = false;
 
-    let sortCol;
-
-    switch (type) {
-      case 'number':
-        if(this.numberFlag) {
-          this.numberFlag = false;
-
-          sortCol = function (rowA, rowB) {
-            return rowB.cells[colNum].innerHTML - rowA.cells[colNum].innerHTML;
-          };
-
-        } else {
-          this.numberFlag = true;
-
-          sortCol = function (rowA, rowB) {
-            return rowA.cells[colNum].innerHTML - rowB.cells[colNum].innerHTML;
-          };
+        return function (itemA, itemB) {
+          return itemA[type] - itemB[type] ? 1 : -1;
         }
 
-        break;
+      } else {
+        this.numberFlag = true;
 
-      case 'string':
-        if(this.stringFlag) {
-          this.stringFlag = false;
-
-          sortCol = function (rowA, rowB) {
-            return rowA.cells[colNum].innerHTML < rowB.cells[colNum].innerHTML ? -1 : 1;
-          };
-        } else {
-          this.stringFlag = true;
-
-          sortCol = function (rowA, rowB) {
-            return rowA.cells[colNum].innerHTML > rowB.cells[colNum].innerHTML ? -1 : 1;
-          };
+        return function (itemA, itemB) {
+          return itemB[type] - itemA[type] ? 1 : -1;
         }
 
-        break;
+      }
     }
 
-    tr.sort(sortCol);
-    tbody.append(...tr);
+    if (type !== 'number') {
+      if (this.stringFlag) {
+        this.stringFlag = false;
+
+        return function (itemA, itemB) {
+          return itemA[type] > itemB[type] ? 1 : -1;
+        }
+
+      } else {
+        this.stringFlag = true;
+
+        return function (itemA, itemB) {
+          return itemA[type] < itemB[type] ? 1 : -1;
+        }
+
+      }
+    }
   }
 
   addPaginationBtn(num) {
@@ -107,22 +97,12 @@ class UsersTable {
     }
   }
 
-  hiddenBtn() {
-    if (this.paginationItems.length > 5) {
-      this.paginationItems.forEach((it, i) => {
-        if (i > 5) {
-          it.classList.add('pagination__item--hidden');
-        }
-      })
-    }
-  }
-
-  loadData(num) {
+  loadData(data, num) {
     const number = (num * this.countTrInPage) - this.countTrInPage;
 
     this.data.forEach((it, i) => {
       if (i > number && i <= number + this.countTrInPage) {
-        this.addTr(this.data[i]);
+        this.addTr(data[i]);
         [...this.tbody.querySelectorAll('tr')][i - number - 1].querySelectorAll('td')[0].textContent = `${i}`;
       }
     });
@@ -135,8 +115,24 @@ class UsersTable {
   onTrClick(evt) {
     const evtTarget = evt.target;
 
+    let dataPage;
+
     if (evtTarget.classList.contains('user-data__td--sorting')) {
-      this.sortingTr(evtTarget.cellIndex, evtTarget.getAttribute('data-type'));
+      this.clearTbody();
+
+      [].forEach.call(this.pagination.querySelectorAll('.pagination__item'), (it) => {
+        if (it.classList.contains('pagination__item--active')) {
+          dataPage = it;
+
+          return dataPage;
+        }
+      });
+
+      let dataPage = dataPage.getAttribute('data-page');
+
+      const newData = this.data.sort(this.sortingData(evtTarget.getAttribute('data-type')));
+
+      this.loadData(newData, dataPage);
 
       this.headingTr.forEach((it) => {
         if (it.classList.contains('user-data__td--sorting-up') && it !== evtTarget) {
@@ -167,7 +163,7 @@ class UsersTable {
     const dataPage = btn.getAttribute('data-page');
 
     this.clearTbody();
-    this.loadData(dataPage);
+    this.loadData(this.data, dataPage);
 
     [].forEach.call(this.pagination.querySelectorAll('.pagination__item--active'), (it) => {
       it.classList.remove('pagination__item--active');
@@ -198,7 +194,9 @@ async function getData() {
 }
 
 async function main() {
-  const data = await getData();
+  const data = await getData().catch((err) => {
+    throw new Error(`Не удалось получить данные, ошибка: ${err}`)
+  });
 
   const userTable = new UsersTable({
     elem: document.querySelector('.user-data'),
