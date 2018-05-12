@@ -8,8 +8,7 @@ class UsersTable {
     this.headingTr = [...this.table.querySelectorAll('.user-data__td--sorting')];
     this.pagination = this.elem.querySelector('.pagination');
     this.countTrInPage = 5;
-    this.numberFlag = true;
-    this.stringFlag = true;
+    this.flag = true;
   }
 
   addTr(data) {
@@ -33,41 +32,20 @@ class UsersTable {
   }
 
   sortingData(type) {
-    if (type === 'number') {
-      if (this.numberFlag) {
-        this.numberFlag = false;
+      if (this.flag) {
+        this.flag = false;
 
         return function (itemA, itemB) {
-          return itemA[type] - itemB[type] ? 1 : -1;
+          return itemA[type] > itemB[type] ? -1 : 1;
         }
 
       } else {
-        this.numberFlag = true;
-
-        return function (itemA, itemB) {
-          return itemB[type] - itemA[type] ? 1 : -1;
-        }
-
-      }
-    }
-
-    if (type !== 'number') {
-      if (this.stringFlag) {
-        this.stringFlag = false;
-
-        return function (itemA, itemB) {
-          return itemA[type] < itemB[type] ? 1 : -1;
-        }
-
-      } else {
-        this.stringFlag = true;
+        this.flag = true;
 
         return function (itemA, itemB) {
           return itemA[type] > itemB[type] ? 1 : -1;
         }
-
       }
-    }
   }
 
   addPaginationBtn(num) {
@@ -98,7 +76,6 @@ class UsersTable {
     data.forEach((it, i) => {
       if (i >= number && i < number + this.countTrInPage) {
         this.addTr(data[i]);
-        // [...this.tbody.querySelectorAll('tr')][i - number].querySelectorAll('td')[0].textContent = `${i + 1}`;
       }
     });
   }
@@ -123,7 +100,7 @@ class UsersTable {
         }
       });
 
-      let dataPage = dataPage.getAttribute('data-page');
+      dataPage = dataPage.getAttribute('data-page');
 
       const newData = this.data.sort(this.sortingData(evtTarget.getAttribute('data-type')));
 
@@ -171,7 +148,6 @@ class UsersTable {
     if (this.data) {
       for (let i = 0; i < this.countTrInPage; i++) {
         this.addTr(this.data[i]);
-        // [...this.tbody.querySelectorAll('tr')][i].querySelectorAll('td')[0].textContent = `${i + 1}`;
       }
 
       this.table.addEventListener('click', this.onTrClick.bind(this));
@@ -196,8 +172,7 @@ async function main() {
   const userTable = new UsersTable({
     elem: document.querySelector('.user-data'),
     data: data.map((it, i) => {
-
-      it.i = i + 1;
+      it['number'] = i + 1;
 
       return it;
     })
