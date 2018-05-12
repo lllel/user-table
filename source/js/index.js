@@ -7,12 +7,15 @@ class UsersTable {
     this.tr = this.table.querySelectorAll('.user-data__tr');
     this.headingTr = [...this.table.querySelectorAll('.user-data__td--sorting')];
     this.pagination = this.elem.querySelector('.pagination');
+    // this.selectUserContainer = this.elem.querySelector('.select-user');
     this.countTrInPage = 5;
     this.flag = true;
   }
 
   addTr(data) {
     const tr = document.createElement('tr');
+
+    tr.style.cursor = 'pointer';
 
     if (data) {
       for (let i = 0; i < Object.keys(data).length; i++) {
@@ -84,6 +87,88 @@ class UsersTable {
     this.tbody.innerHTML = '';
   }
 
+  findUser(id) {
+    let data = this.data;
+
+    data = data.filter((it) => {
+      return parseInt(it.id, 10) === parseInt(id, 10);
+    });
+
+    return data;
+  }
+
+  addUserInfo(item) {
+    if (this.elem.querySelector('.select-user')) {
+      this.elem.removeChild(this.elem.querySelector('.select-user'))
+    }
+
+    const user = item[0];
+    const container = document.createElement('div');
+    const userName = document.createElement('span');
+    const userSurname = document.createElement('span');
+    const description = document.createElement('span');
+    const street = document.createElement('span');
+    const city = document.createElement('span');
+    const state = document.createElement('span');
+    const zip = document.createElement('span');
+
+    const allName = document.createElement('p');
+    const allDescription = document.createElement('p');
+    const allStreet = document.createElement('p');
+    const allCity = document.createElement('p');
+    const allState = document.createElement('p');
+    const allZip = document.createElement('p');
+
+    container.className = 'select-user';
+
+    userName.textContent = ` ${user.firstName} `;
+    userSurname.textContent = ` ${user.lastName} `;
+
+    allName.textContent = 'Выбран пользователь: ';
+    allName.appendChild(userName);
+    allName.appendChild(userSurname);
+
+    allDescription.textContent = 'Описание: ';
+    description.textContent = user.description;
+    allDescription.appendChild(description);
+
+    allStreet.textContent = 'Адрес проживания: ';
+    street.textContent = user.address.streetAddress;
+    allStreet.appendChild(street);
+
+    allCity.textContent = 'Город: ';
+    city.textContent = user.address.city;
+    allCity.appendChild(city);
+
+    allState.textContent = 'Штат: ';
+    state.textContent = user.address.state;
+    allState.appendChild(state);
+
+    allZip.textContent = 'Индекс: ';
+    zip.textContent = user.address.zip;
+    allZip.appendChild(zip);
+
+    this.elem.appendChild(container);
+    container.appendChild(allName);
+    container.appendChild(allDescription);
+    container.appendChild(allStreet);
+    container.appendChild(allCity);
+    container.appendChild(allState);
+    container.appendChild(allZip);
+  }
+
+  onUserClick(evt) {
+    const tr = evt.target.closest('tr');
+    const dataId = tr.getAttribute('data-id');
+    const obj = this.findUser(dataId);
+
+    this.addUserInfo(obj);
+
+    [].forEach.call(this.tbody.querySelectorAll('tr'), (it) => {
+      it.className = '';
+    })
+  }
+
   onTrClick(evt) {
     const evtTarget = evt.target;
 
@@ -152,6 +237,12 @@ class UsersTable {
 
       this.table.addEventListener('click', this.onTrClick.bind(this));
       this.pagination.addEventListener('click', this.onBtnClick.bind(this));
+      this.table.addEventListener('click', (evt) => {
+        if (evt.target.closest('[data-id]')) {
+          this.onUserClick(evt);
+          evt.target.closest('[data-id]').className = 'active';
+        }
+      });
       this.addPaginationAllBtns();
       this.pagination.querySelectorAll('.pagination__item')[0].classList.add('pagination__item--active');
     }
